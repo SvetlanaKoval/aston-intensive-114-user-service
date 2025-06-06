@@ -4,15 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.*;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.AppException;
-import ru.aston.intensive.utils.HibernateUtil;
 
 @Slf4j
 public class UserDAOHibernateImpl implements UserDAO {
 
     private final SessionFactory sessionFactory;
 
-    public UserDAOHibernateImpl() {
-        this.sessionFactory = HibernateUtil.getSessionFactory();
+    public UserDAOHibernateImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
