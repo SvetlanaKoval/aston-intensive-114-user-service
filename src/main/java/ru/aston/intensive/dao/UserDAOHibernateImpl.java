@@ -1,14 +1,15 @@
 package ru.aston.intensive.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.AppException;
 
-@Slf4j
 public class UserDAOHibernateImpl implements UserDAO {
 
     private final SessionFactory sessionFactory;
+    private static final Logger log = LoggerFactory.getLogger(UserDAOHibernateImpl.class);
 
     public UserDAOHibernateImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;

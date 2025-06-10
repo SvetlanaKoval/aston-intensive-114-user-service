@@ -1,6 +1,7 @@
 package ru.aston.intensive;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.aston.intensive.dao.UserDAOHibernateImpl;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.AppException;
@@ -8,9 +9,9 @@ import ru.aston.intensive.service.UserService;
 import ru.aston.intensive.utils.HibernateUtil;
 import java.util.Scanner;
 
-@Slf4j
 public class ConsoleApp {
 
+    private static final Logger log = LoggerFactory.getLogger(ConsoleApp.class);
     static UserService userService = new UserService(new UserDAOHibernateImpl(HibernateUtil.getSessionFactory()));
     static Scanner scanner = new Scanner(System.in);
 

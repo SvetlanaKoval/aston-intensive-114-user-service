@@ -1,11 +1,9 @@
 package ru.aston.intensive.service;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.aston.intensive.dao.UserDAO;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.AppException;
 
-@Slf4j
 public class UserService {
 
     public UserDAO dao;
