@@ -1,27 +1,29 @@
 package ru.aston.intensive.service;
 
-import lombok.extern.slf4j.Slf4j;
-import ru.aston.intensive.dao.UserDAOHibernateImpl;
+import ru.aston.intensive.dao.UserDAO;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.AppException;
 
-@Slf4j
 public class UserService {
 
-    public static UserDAOHibernateImpl dao = new UserDAOHibernateImpl();
+    public UserDAO dao;
+
+    public UserService(UserDAO dao) {
+        this.dao = dao;
+    }
 
     public User getUserById(Long userId) {
         return dao.findById(userId);
     }
 
-    public void saveUser(String name, String email) {
+    public Long saveUser(String name, String email) {
         validateData(name, email);
 
         User user = new User();
         user.setName(name);
         user.setEmail(email);
 
-        dao.save(user);
+        return dao.save(user);
     }
 
     public void updateUser(Long userId, String name, String email) {
