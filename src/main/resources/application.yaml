@@ -1,0 +1,17 @@
+spring:
+  application.name: intensive
+  main.banner-mode: OFF
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql:
+      jdbc.time_zone: UTC
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+  datasource:
+    username: "postgres"
+    password: "postgres"
+    url: "jdbc:postgresql://localhost:5432/postgres"
+    driver-class-name: "org.postgresql.Driver"
+
