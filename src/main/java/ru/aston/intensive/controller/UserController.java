@@ -19,11 +19,12 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserServiceExceptionHandler.class);
 
     private final UserService userService;
+    private final UserMapper mapper;
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable Long userId) {
         log.debug("Going to controller: find user with id - {}", userId);
-        return UserMapper.INSTANCE.mapUserToUserDto(userService.getUserById(userId));
+        return mapper.mapUserToUserDto(userService.getUserById(userId));
     }
 
     @PostMapping
@@ -32,7 +33,7 @@ public class UserController {
                                @RequestParam("email") String email) {
         log.debug("Going to controller: save new user with name - {}, email - {}", name, email);
         User user = userService.saveUser(name, email);
-        return UserMapper.INSTANCE.mapUserToUserDto(user);
+        return mapper.mapUserToUserDto(user);
     }
 
     @PostMapping("/{userId}")

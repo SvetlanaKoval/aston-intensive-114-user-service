@@ -1,43 +1,23 @@
 package ru.aston.intensive.controller;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import ru.aston.intensive.AbstractIntegrationTest;
 import ru.aston.intensive.entity.User;
-import ru.aston.intensive.repository.UserRepository;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Testcontainers
-@SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
-
-    @Container
-    private static final PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:14.1-alpine");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", container::getJdbcUrl);
-        registry.add("spring.datasource.username", container::getUsername);
-        registry.add("spring.datasource.password", container::getPassword);
-    }
+public class UserControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
 
     private User testUserIvan;
 
@@ -46,11 +26,6 @@ public class UserControllerTest {
         testUserIvan = new User();
         testUserIvan.setName("Ivan");
         testUserIvan.setEmail("ivan@test.ru");
-    }
-
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
     }
 
     @Test
