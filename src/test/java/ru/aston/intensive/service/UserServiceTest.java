@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.aston.intensive.dao.UserDAO;
 import ru.aston.intensive.entity.User;
-import ru.aston.intensive.exception.AppException;
+import ru.aston.intensive.exception.UserNotFoundException;
+import ru.aston.intensive.exception.ValidateException;
+import ru.aston.intensive.repository.UserRepository;
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -15,7 +17,7 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock
-    private UserDAO userDAO;
+    private UserRepository repository;
 
     @InjectMocks
     private UserService userService;
@@ -35,7 +37,7 @@ public class UserServiceTest {
         userService.saveUser(testUserIvan.getName(), testUserIvan.getEmail());
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userDAO).save(userCaptor.capture());
+        verify(repository).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();
 
         assertEquals(testUserIvan.getName(), savedUser.getName());
@@ -48,7 +50,7 @@ public class UserServiceTest {
         userService.saveUser(testUserIvan.getName(), testUserIvan.getEmail());
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userDAO).save(userCaptor.capture());
+        verify(repository).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();
 
         assertNull(savedUser.getId());
@@ -57,15 +59,16 @@ public class UserServiceTest {
 
     @Test
     public void testSaveNewUserWithInvalidData() {
-        assertThrows(AppException.class, () -> userService.saveUser(null, testUserIvan.getEmail()));
+        ValidateException exception = assertThrows(ValidateException.class, () -> userService.saveUser(null, testUserIvan.getEmail()));
+        assertEquals("Invalid user name=null, email=ivan@test.ru", exception.getMessage());
 
-        verify(userDAO, times(0)).save(testUserIvan);
+        verify(repository, never()).save(testUserIvan);
     }
 
     @Test
     public void testGetUserById() {
         Long testUserId = testUserIvan.getId();
-        when(userDAO.findById(testUserId)).thenReturn(testUserIvan);
+        when(repository.findById(testUserId)).thenReturn(Optional.of(testUserIvan));
 
         User returnedUser = userService.getUserById(testUserId);
 
@@ -73,30 +76,29 @@ public class UserServiceTest {
         assertEquals(testUserIvan.getName(), returnedUser.getName());
         assertEquals(testUserIvan.getEmail(), returnedUser.getEmail());
 
-        verify(userDAO, times(1)).findById(testUserId);
+        verify(repository).findById(testUserId);
     }
 
     @Test
     public void testGetNotExistsUserById() {
-        Long testUserId = testUserIvan.getId();
-        when(userDAO.findById(testUserId)).thenReturn(null);
+        Long testUserId = 999L;
+        when(repository.findById(testUserId)).thenThrow(new UserNotFoundException("User with id 999 not found"));
 
-        User returnedUser = userService.getUserById(testUserId);
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.getUserById(testUserId));
+        assertEquals("User with id 999 not found", exception.getMessage());
 
-        assertNull(returnedUser);
-
-        verify(userDAO, times(1)).findById(testUserId);
+        verify(repository).findById(testUserId);
     }
 
     @Test
     public void testUpdateUser() {
         Long testUserId = testUserIvan.getId();
+        when(repository.findById(testUserId)).thenReturn(Optional.of(testUserIvan));
+
         userService.updateUser(testUserId, testUserIvan.getName(), testUserIvan.getEmail());
+        verify(repository).findById(testUserId);
 
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userDAO).update(userCaptor.capture());
-        User updatedUser = userCaptor.getValue();
-
+        User updatedUser = userService.getUserById(testUserId);
         assertNotNull(updatedUser.getId());
         assertEquals(testUserId, updatedUser.getId());
         assertEquals(testUserIvan.getName(), updatedUser.getName());
@@ -105,18 +107,25 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUserWithInvalidData() {
-        assertThrows(AppException.class, () -> userService.updateUser(testUserIvan.getId(), null, testUserIvan.getEmail()));
+        ValidateException exception =
+            assertThrows(ValidateException.class, () -> userService.updateUser(testUserIvan.getId(), null, testUserIvan.getEmail()));
+        assertEquals("Invalid user name=null, email=ivan@test.ru", exception.getMessage());
 
-        verify(userDAO, times(0)).update(testUserIvan);
+        verify(repository, never()).findById(testUserIvan.getId());
     }
 
     @Test
     public void testDeleteUserById() {
         Long testUserId = testUserIvan.getId();
+        when(repository.findById(testUserId)).thenReturn(Optional.of(testUserIvan));
 
         userService.deleteUserById(testUserId);
+        verify(repository).findById(testUserId);
 
-        verify(userDAO, times(1)).delete(testUserId);
+        when(repository.findById(testUserId)).thenThrow(new UserNotFoundException("User with id 999 not found"));
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.getUserById(testUserId));
+        assertEquals("User with id 999 not found", exception.getMessage());
     }
 
 }
