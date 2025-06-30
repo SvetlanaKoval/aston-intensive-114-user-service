@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.aston.intensive.dto.EventType;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.UserNotFoundException;
 import ru.aston.intensive.exception.ValidateException;
@@ -18,6 +19,8 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository repository;
+    @Mock
+    private UserEventService eventService;
 
     @InjectMocks
     private UserService userService;
@@ -43,6 +46,8 @@ public class UserServiceTest {
         assertEquals(testUserIvan.getName(), savedUser.getName());
         assertEquals(testUserIvan.getEmail(), savedUser.getEmail());
         assertNotNull(savedUser.getCreatedAt());
+
+        verify(eventService).sendMessage(testUserIvan.getEmail(), EventType.CREATED);
     }
 
     @Test
@@ -63,6 +68,7 @@ public class UserServiceTest {
         assertEquals("Invalid user name=null, email=ivan@test.ru", exception.getMessage());
 
         verify(repository, never()).save(testUserIvan);
+        verify(eventService, never()).sendMessage(testUserIvan.getEmail(), EventType.CREATED);
     }
 
     @Test
@@ -121,6 +127,7 @@ public class UserServiceTest {
 
         userService.deleteUserById(testUserId);
         verify(repository).findById(testUserId);
+        verify(eventService).sendMessage(testUserIvan.getEmail(), EventType.DELETED);
 
         when(repository.findById(testUserId)).thenThrow(new UserNotFoundException("User with id 999 not found"));
 
