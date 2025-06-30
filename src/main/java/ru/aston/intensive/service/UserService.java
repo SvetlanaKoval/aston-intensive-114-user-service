@@ -1,49 +1,49 @@
 package ru.aston.intensive.service;
 
-import ru.aston.intensive.dao.UserDAO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.aston.intensive.entity.User;
-import ru.aston.intensive.exception.AppException;
+import ru.aston.intensive.exception.UserNotFoundException;
+import ru.aston.intensive.exception.ValidateException;
+import ru.aston.intensive.repository.UserRepository;
 
+@Service
+@RequiredArgsConstructor
 public class UserService {
 
-    public UserDAO dao;
-
-    public UserService(UserDAO dao) {
-        this.dao = dao;
-    }
+    private final UserRepository repository;
 
     public User getUserById(Long userId) {
-        return dao.findById(userId);
+        return repository.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", userId)));
     }
 
-    public Long saveUser(String name, String email) {
+    public User saveUser(String name, String email) {
         validateData(name, email);
 
         User user = new User();
         user.setName(name);
         user.setEmail(email);
 
-        return dao.save(user);
+        return repository.save(user);
     }
 
     public void updateUser(Long userId, String name, String email) {
         validateData(name, email);
 
-        User user = new User();
-        user.setId(userId);
+        User user = repository.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", userId)));
         user.setName(name);
         user.setEmail(email);
-
-        dao.update(user);
+        repository.save(user);
     }
 
     public void deleteUserById(Long userId) {
-        dao.delete(userId);
+        User user = repository.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", userId)));
+        repository.delete(user);
     }
 
-    private static void validateData(String name, String email) {
-        if (name == null || name.isEmpty() || email == null || email.isEmpty()) {
-            throw new AppException(String.format("Invalid user name=%s, email=%s", name, email));
+    private void validateData(String name, String email) {
+        if (name == null || name.isEmpty() || email == null || email.isEmpty() || email.isBlank()) {
+            throw new ValidateException(String.format("Invalid user name=%s, email=%s", name, email));
         }
     }
 
