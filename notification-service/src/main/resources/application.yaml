@@ -1,0 +1,18 @@
+server:
+  port: 8081
+
+spring:
+  application.name: notification-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group
+    properties:
+      spring.json.trusted.packages: "*"
+
+  mail:
+    host: localhost
+    port: 1025
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false

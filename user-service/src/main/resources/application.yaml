@@ -1,5 +1,8 @@
+server:
+  port: 8080
+
 spring:
-  application.name: intensive
+  application.name: user-service
   main.banner-mode: OFF
   jpa:
     show-sql: true
@@ -14,4 +17,5 @@ spring:
     password: "postgres"
     url: "jdbc:postgresql://localhost:5432/postgres"
     driver-class-name: "org.postgresql.Driver"
-
+  kafka:
+    bootstrap-servers: localhost:9092

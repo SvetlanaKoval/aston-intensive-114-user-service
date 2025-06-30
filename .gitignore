@@ -25,4 +25,5 @@ replay_pid*
 
 *.iml
 .idea
-target
+user-service/target
+notification-service/target
