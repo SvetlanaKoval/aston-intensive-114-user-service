@@ -2,6 +2,7 @@ package ru.aston.intensive.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.aston.intensive.dto.EventType;
 import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.UserNotFoundException;
 import ru.aston.intensive.exception.ValidateException;
@@ -12,6 +13,7 @@ import ru.aston.intensive.repository.UserRepository;
 public class UserService {
 
     private final UserRepository repository;
+    private final UserEventService userEventService;
 
     public User getUserById(Long userId) {
         return repository.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", userId)));
@@ -24,7 +26,10 @@ public class UserService {
         user.setName(name);
         user.setEmail(email);
 
-        return repository.save(user);
+        User savedUser = repository.save(user);
+        userEventService.sendMessage(email, EventType.CREATED);
+
+        return savedUser;
     }
 
     public void updateUser(Long userId, String name, String email) {
@@ -39,6 +44,7 @@ public class UserService {
     public void deleteUserById(Long userId) {
         User user = repository.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", userId)));
         repository.delete(user);
+        userEventService.sendMessage(user.getEmail(), EventType.DELETED);
     }
 
     private void validateData(String name, String email) {
