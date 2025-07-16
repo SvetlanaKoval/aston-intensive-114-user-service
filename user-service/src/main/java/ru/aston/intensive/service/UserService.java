@@ -7,6 +7,7 @@ import ru.aston.intensive.entity.User;
 import ru.aston.intensive.exception.UserNotFoundException;
 import ru.aston.intensive.exception.ValidateException;
 import ru.aston.intensive.repository.UserRepository;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +52,10 @@ public class UserService {
         if (name == null || name.isEmpty() || email == null || email.isEmpty() || email.isBlank()) {
             throw new ValidateException(String.format("Invalid user name=%s, email=%s", name, email));
         }
+    }
+
+    public List<User> getAllUsers() {
+        return repository.findAll();
     }
 
 }
